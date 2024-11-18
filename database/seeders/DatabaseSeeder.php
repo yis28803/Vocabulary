@@ -13,11 +13,14 @@ class DatabaseSeeder extends Seeder
      */
     public function run(): void
     {
-        // User::factory(10)->create();
-
-        User::factory()->create([
-            'name' => 'Test User',
-            'email' => 'test@example.com',
+        // Gọi tất cả các seeder con mà bạn muốn chạy
+        $this->call([
+            UserSeeder::class,
+            CoursesTableSeeder::class,
+            RecallLevelsTableSeeder::class,
+            StudyMethodsTableSeeder::class,
+            TopicsTableSeeder::class,
+            VocabulariesTableSeeder::class,
         ]);
     }
 }
