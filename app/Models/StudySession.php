@@ -12,16 +12,19 @@ class StudySession extends Model
     protected $fillable = [
         'user_id', 
         'vocabulary_id', 
-        'study_method_id', 
         'level', 
         'last_studied_at', 
         'next_review_at',
-        'question'
+        'question',
+        'completed_methods',
+        'hints',
     ];
 
     protected $casts = [
         'next_review_at' => 'datetime',
         'options' => 'array',
+        'completed_methods' => 'array',
+        'hints' => 'array',
     ];
 
     /**
@@ -38,14 +41,6 @@ class StudySession extends Model
     public function vocabulary()
     {
         return $this->belongsTo(Vocabulary::class);
-    }
-
-    /**
-     * Mối quan hệ với bảng study_methods (một study session có một study method)
-     */
-    public function studyMethod()
-    {
-        return $this->belongsTo(StudyMethod::class);
     }
 
     /**

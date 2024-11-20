@@ -13,14 +13,13 @@ return new class extends Migration
     {
         Schema::create('study_sessions', function (Blueprint $table) {
             $table->id();
-            $table->foreignId('user_id')->constrained()->onDelete('cascade'); // Assuming users table exists
+            $table->foreignId('user_id')->constrained()->onDelete('cascade');
             $table->foreignId('vocabulary_id')->constrained('vocabularies')->onDelete('cascade');
-            $table->foreignId('study_method_id')->constrained('study_methods')->onDelete('cascade');
             $table->integer('level')->default(1);
             $table->timestamp('last_studied_at')->nullable();
             $table->timestamp('next_review_at')->nullable();
-            $table->text('question')->nullable();
-            $table->json('options')->nullable();
+            $table->json('completed_methods')->nullable();  
+            $table->json('hints')->nullable(); 
             $table->timestamps();
         });
     }
