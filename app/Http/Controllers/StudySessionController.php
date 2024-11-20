@@ -22,43 +22,49 @@ class StudySessionController extends Controller
         5 => 168,    // 168 giờ (7 ngày) cho cấp 5 (hoàn thành)
     ];
 
-    // Tạo mới một session học từ vựng
-    // Hàm để tạo câu hỏi dựa trên phương pháp học
     protected function generateQuestionByMethod($vocabulary, $studyMethodId)
     {
         $studyMethod = StudyMethod::findOrFail($studyMethodId);
 
         switch ($studyMethod->name) {
             case 'Flashcard':
-                return "Dịch từ '{$vocabulary->word}' sang tiếng Việt.";
+                return "";
 
             case 'Nghe và viết lại':
-                return "Nghe từ '{$vocabulary->audio_url}' và viết lại cách đọc.";
-
-            case 'Chọn nghĩa của từ':
-                return "Chọn nghĩa đúng của từ '{$vocabulary->word}'.";
+                return "Nghe và viết lại";
 
             case 'Điền từ':
-                $sentence = str_replace($vocabulary->word, '___', $vocabulary->example_sentence);
-                return "Điền từ vào chỗ trống trong câu: '{$sentence}'";
+                $word = $vocabulary->word;
+                $wordLength = strlen($word);
+            
+                $wordArray = str_split($word);
+            
+                $hiddenPositions = range(0, $wordLength - 1);
+                shuffle($hiddenPositions);
+                $hiddenPositions = array_slice($hiddenPositions, 0, ceil($wordLength / 2)); // Giữ lại nửa số vị trí
+            
+                foreach ($hiddenPositions as $position) {
+                    $wordArray[$position] = ' _ ';
+                }
+            
+                $hint = implode('', $wordArray);
 
-            case 'Chọn nghĩa của từ được gạch chân':
-                $sentence = str_replace($vocabulary->word, "<u>{$vocabulary->word}</u>", $vocabulary->example_sentence);
+                $replacement = str_repeat('_', $wordLength);
+                
+                
+                $sentence = str_ireplace($vocabulary->word, $replacement, $vocabulary->example_sentence);
 
-                // Tạo phương án lựa chọn với một đáp án đúng và hai đáp án sai ngẫu nhiên
-                $options = [
-                    $vocabulary->meaning, // Đáp án đúng
-                    Vocabulary::inRandomOrder()->where('id', '!=', $vocabulary->id)->value('meaning'),
-                    Vocabulary::inRandomOrder()->where('id', '!=', $vocabulary->id)->value('meaning'),
+                return [
+                    'question' => "Điền từ vào chỗ trống trong câu: '{$sentence}'",
+                    'hint' => $hint,
                 ];
-                shuffle($options); // Trộn ngẫu nhiên các lựa chọn
-
-                return "Trong câu: '{$sentence}', từ được gạch chân có nghĩa là:\n(a) {$options[0]}\n(b) {$options[1]}\n(c) {$options[2]}";
 
             default:
-                return "Ôn tập từ vựng: '{$vocabulary->word}'."; // Câu hỏi mặc định
+                return "Ôn tập từ vựng: '{$vocabulary->word}'.";
         }
     }
+
+
 
 
     // Tạo mới một session học từ vựng
@@ -67,16 +73,18 @@ class StudySessionController extends Controller
         $userId = Auth::id() ?? 1;
         $vocabulary = Vocabulary::findOrFail($request->input('vocabulary_id'));
 
-        // Lấy tất cả các phương pháp học
         $studyMethods = StudyMethod::pluck('id', 'name');
-        
-        // Random chọn một phương pháp học từ danh sách phương pháp có trong database
         $studyMethodName = $studyMethods->keys()->random();
         $studyMethodId = $studyMethods[$studyMethodName];
 
-        // Tạo câu hỏi dựa trên phương pháp học ngẫu nhiên
-        $question = $this->generateQuestionByMethod($vocabulary, $studyMethodId);
+        $studyMethodId = 4;
 
+        $generatedData = $this->generateQuestionByMethod($vocabulary, $studyMethodId);
+        // Tách riêng câu hỏi và gợi ý
+        $question = is_array($generatedData) ? $generatedData['question'] : $generatedData;
+        $hint = is_array($generatedData) && isset($generatedData['hint']) ? $generatedData['hint'] : null;
+
+        // dd($question);
 
         $studySession = StudySession::create([
             'vocabulary_id' => $vocabulary->id,
@@ -84,12 +92,15 @@ class StudySessionController extends Controller
             'study_method_id' => $studyMethodId,
             'level' => 1,
             'question' => $question,
-            'audio' => $vocabulary->audio_url,
-            'meaning' => $vocabulary->meaning,
         ]);
-        
-        return redirect()->route('study-sessions.show', $studySession->id);
+
+        return redirect()->route('study-sessions.show', $studySession->id)
+            ->with([
+                'studySession' => $studySession,
+                'hint' => $hint ?? null,
+            ]);
     }
+
 
 
     // Kiểm tra điều kiện để ôn tập từ vựng
@@ -148,13 +159,6 @@ class StudySessionController extends Controller
         // Redirect đến trang study-card.index cùng với studySession ID
         return redirect()->route('study-card.index', ['studySessionId' => $studySession->id]);
 
-        // Tạo thông điệp phản hồi
-        // $message = $request->input('answer') == $correctAnswer 
-        //             ? 'Đúng! Cấp độ đã được tăng và bạn cần đợi để ôn tập lại.' 
-        //             : 'Sai. Cấp độ đã bị giảm và sẽ cần chờ trước khi ôn tập lại.';
-
-        // return redirect()->route('study-sessions.index', $studySession->id)
-        //                 ->with('message', $message);
     }
 
    

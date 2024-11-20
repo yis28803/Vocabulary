@@ -20,6 +20,7 @@ return new class extends Migration
             $table->timestamp('last_studied_at')->nullable();
             $table->timestamp('next_review_at')->nullable();
             $table->text('question')->nullable();
+            $table->json('options')->nullable();
             $table->timestamps();
         });
     }

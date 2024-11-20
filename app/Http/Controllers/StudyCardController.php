@@ -19,6 +19,71 @@ class StudyCardController extends Controller
         5 => 168,    // 168 giờ (7 ngày) cho cấp 5 (hoàn thành)
     ];
 
+
+    // protected function generateQuestionByMethod($vocabulary, $studyMethodId)
+    // {
+    //     $studyMethod = StudyMethod::findOrFail($studyMethodId);
+
+    //     switch ($studyMethod->name) {
+    //         case 'Flashcard':
+    //             return "Dịch từ '{$vocabulary->word}' sang tiếng Việt.";
+
+    //         case 'Nghe và viết lại':
+    //             return "Nghe từ '{$vocabulary->audio_url}' và viết lại cách đọc.";
+
+    //         case 'Chọn nghĩa của từ':
+    //             return "Chọn nghĩa đúng của từ '{$vocabulary->word}'.";
+
+    //         case 'Điền từ':
+    //             // Lấy từ vựng
+    //             $word = $vocabulary->word;
+    //             $wordLength = strlen($word);
+            
+    //             // Tạo một mảng các ký tự của từ vựng
+    //             $wordArray = str_split($word);
+            
+    //             // Chọn ngẫu nhiên các vị trí cần ẩn
+    //             $hiddenPositions = range(0, $wordLength - 1);
+    //             shuffle($hiddenPositions); // Trộn ngẫu nhiên các vị trí
+    //             $hiddenPositions = array_slice($hiddenPositions, 0, ceil($wordLength / 2)); // Giữ lại nửa số vị trí
+            
+    //             // Ẩn các ký tự theo các vị trí ngẫu nhiên
+    //             foreach ($hiddenPositions as $position) {
+    //                 $wordArray[$position] = '_';
+    //             }
+            
+    //             // Tạo câu gợi ý
+    //             $hint = implode('', $wordArray);
+            
+    //             // Tạo câu hỏi với gợi ý
+    //             $sentence = str_replace($vocabulary->word, $hint, $vocabulary->example_sentence);
+    //             return "Điền từ vào chỗ trống trong câu: '{$sentence}'";
+            
+
+    //         case 'Chọn nghĩa của từ được gạch chân':
+    //             $sentence = str_replace($vocabulary->word, "<u>{$vocabulary->word}</u>", $vocabulary->example_sentence);
+            
+    //             // Tạo phương án lựa chọn với một đáp án đúng và hai đáp án sai ngẫu nhiên
+    //             $options = [
+    //                 $vocabulary->meaning,
+    //                 Vocabulary::inRandomOrder()->where('id', '!=', $vocabulary->id)->value('meaning'),
+    //                 Vocabulary::inRandomOrder()->where('id', '!=', $vocabulary->id)->value('meaning'),
+    //             ];
+    //             shuffle($options);
+            
+    //             // Lưu câu hỏi
+    //             return [
+    //                 'question' => "Trong câu: '{$sentence}', từ được gạch chân có nghĩa là:",
+    //                 'options' => $options,
+    //             ];
+    
+    //         default:
+    //             return "Ôn tập từ vựng: '{$vocabulary->word}'.";
+    //     }
+    // }
+
+
+
     // Trang hiển thị câu hỏi có thêm từ vào danh sách thẻ học không
     public function index($studySessionId)
     {

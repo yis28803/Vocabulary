@@ -21,6 +21,7 @@ class StudySession extends Model
 
     protected $casts = [
         'next_review_at' => 'datetime',
+        'options' => 'array',
     ];
 
     /**
